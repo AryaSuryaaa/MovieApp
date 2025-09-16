@@ -1,13 +1,30 @@
+import MovieCard from "@/components/MovieCard";
 import SearchBar from "@/components/SearchBar";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
+import { fetchMovies } from "@/services/api";
+import useFetch from "@/services/useFetch";
 import { colors } from "@/theme";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 const Index = () => {
   const router = useRouter();
+
+  const {
+    data: movies,
+    loading: moviesLoading,
+    error: moviesError,
+  } = useFetch(() => fetchMovies({ query: "" }));
 
   return (
     <View style={styles.container}>
@@ -20,14 +37,38 @@ const Index = () => {
       >
         <Image source={icons.logo} style={styles.logo} />
 
-        <View style={styles.searchContainer}>
-          <SearchBar
-            onPress={() => {
-              router.push("/search");
-            }}
-            placeholder="Search for a movie"
-          ></SearchBar>
-        </View>
+        {moviesLoading ? (
+          <ActivityIndicator size="large" color={colors.accent} />
+        ) : moviesError ? (
+          <Text>Error: {moviesError?.message}</Text>
+        ) : (
+          <View style={styles.searchContainer}>
+            <SearchBar
+              onPress={() => {
+                router.push("/search");
+              }}
+              placeholder="Search for a movie"
+            />
+            <>
+              <Text style={styles.sectionTitle}>Latest Movie</Text>
+
+              <FlatList
+                data={movies}
+                renderItem={({ item }) => <MovieCard {...item} />}
+                keyExtractor={(item) => item.id}
+                numColumns={3}
+                columnWrapperStyle={{
+                  justifyContent: "flex-start",
+                  gap: 20,
+                  paddingRight: 5,
+                  marginBottom: 16,
+                }}
+                style={styles.listMovieContainer}
+                scrollEnabled={false}
+              ></FlatList>
+            </>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -65,5 +106,15 @@ const styles = StyleSheet.create({
   searchContainer: {
     flex: 1,
     marginTop: 40,
+  },
+  sectionTitle: {
+    color: "white",
+    fontSize: 18,
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  listMovieContainer: {
+    marginTop: 8,
+    paddingBottom: 128,
   },
 });
