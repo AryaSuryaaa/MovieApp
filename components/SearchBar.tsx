@@ -6,17 +6,19 @@ import { Image, StyleSheet, TextInput, View } from "react-native";
 interface Props {
   placeholder: string;
   onPress?: () => void;
+  value?: string;
+  onChangeText?: (text: string) => void;
 }
 
-const SearchBar = ({ placeholder, onPress }: Props) => {
+const SearchBar = ({ placeholder, onPress, value, onChangeText }: Props) => {
   return (
     <View style={styles.conatiner}>
       <Image source={icons.search} style={styles.icSearch} />
       <TextInput
         onPress={onPress}
         placeholder={placeholder}
-        value=""
-        onChangeText={() => {}}
+        value={value}
+        onChangeText={onChangeText}
         placeholderTextColor={"#888"}
         style={styles.searchInput}
       />
