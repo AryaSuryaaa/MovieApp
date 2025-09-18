@@ -1,8 +1,10 @@
 import MovieCard from "@/components/MovieCard";
 import SearchBar from "@/components/SearchBar";
+import TrendingCard from "@/components/TrendingCard";
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { fetchMovies } from "@/services/api";
+import { getTendingMovies } from "@/services/appwrite";
 import useFetch from "@/services/useFetch";
 import { colors } from "@/theme";
 import { useRouter } from "expo-router";
@@ -21,6 +23,12 @@ const Index = () => {
   const router = useRouter();
 
   const {
+    data: trendingMovies,
+    loading: trendingLoading,
+    error: trendingError,
+  } = useFetch(getTendingMovies);
+
+  const {
     data: movies,
     loading: moviesLoading,
     error: moviesError,
@@ -37,10 +45,10 @@ const Index = () => {
       >
         <Image source={icons.logo} style={styles.logo} />
 
-        {moviesLoading ? (
+        {moviesLoading || trendingError ? (
           <ActivityIndicator size="large" color={colors.accent} />
-        ) : moviesError ? (
-          <Text>Error: {moviesError?.message}</Text>
+        ) : moviesError || trendingError ? (
+          <Text>Error: {moviesError?.message || trendingError}</Text>
         ) : (
           <View style={styles.searchContainer}>
             <SearchBar
@@ -50,6 +58,24 @@ const Index = () => {
               placeholder="Search for a movie"
             />
             <>
+              {trendingMovies && trendingMovies.length > 0 && (
+                <>
+                  <Text style={styles.sectionTitle}>Trending</Text>
+                  <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    ItemSeparatorComponent={() => (
+                      <View style={{ width: 36 }} />
+                    )}
+                    data={trendingMovies}
+                    renderItem={({ item, index }) => (
+                      <TrendingCard movie={item} index={index} />
+                    )}
+                    keyExtractor={(item) => item.title}
+                  ></FlatList>
+                </>
+              )}
+
               <Text style={styles.sectionTitle}>Latest Movie</Text>
 
               <FlatList
