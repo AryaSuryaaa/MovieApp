@@ -33,10 +33,7 @@ interface MovieDetails {
     backdrop_path: string;
   } | null;
   budget: number;
-  genres: {
-    id: number;
-    name: string;
-  }[];
+  genres: Genre[];
   homepage: string | null;
   id: number;
   imdb_id: string | null;
@@ -74,4 +71,9 @@ interface MovieDetails {
 interface TrendingCardProps {
   movie: TrendingMovie;
   index: number;
+}
+
+interface Genre {
+  id: number;
+  name: string;
 }
